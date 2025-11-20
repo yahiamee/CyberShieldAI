@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+
+{% block title %}{{ t('admin_dashboard') }} - CyberShield{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h2><i class="fas fa-shield-alt me-2 text-danger"></i>{{ t('admin_dashboard') }}</h2>
+        
+        <div class="alert alert-danger mb-4">
+            <i class="fas fa-crown me-2"></i><strong>{{ t('administrator_mode') }}</strong>
+        </div>
+        
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card border-primary">
+                    <div class="card-body">
+                        <h5><i class="fas fa-shield-virus me-2 text-primary"></i>{{ t('zap_status') }}</h5>
+                        <p class="mb-2">
+                            <strong>{{ t('status') }}:</strong> 
+                            {% if zap_status %}
+                                <span class="badge bg-success">{{ t('running') }}</span>
+                            {% else %}
+                                <span class="badge bg-danger">{{ t('not_running') }}</span>
+                            {% endif %}
+                        </p>
+                        <a href="{{ url_for('zap_settings') }}" class="btn btn-primary btn-sm">
+                            <i class="fas fa-cog me-2"></i>{{ t('configure_zap') }}
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card border-success">
+                    <div class="card-body">
+                        <h5><i class="fas fa-brain me-2 text-success"></i>{{ t('openai_ai_analysis') }}</h5>
+                        <p class="mb-2">
+                            <strong>{{ t('status') }}:</strong> 
+                            {% set all_settings = zap_settings if zap_settings else {} %}
+                            {% if all_settings.get('openai_enabled') == 'true' %}
+                                <span class="badge bg-success">{{ t('enabled') }}</span>
+                            {% else %}
+                                <span class="badge bg-secondary">{{ t('disabled') }}</span>
+                            {% endif %}
+                        </p>
+                        <a href="{{ url_for('openai_settings') }}" class="btn btn-success btn-sm">
+                            <i class="fas fa-cog me-2"></i>{{ t('configure_openai') }}
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5><i class="fas fa-users me-2"></i>{{ t('user_management') }}</h5>
+            </div>
+            <div class="card-body">
+                {% if users %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>ID</th>
+                                <th>{{ t('username') }}</th>
+                                <th>{{ t('email') }}</th>
+                                <th>{{ t('role') }}</th>
+                                <th>{{ t('created_at') }}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for user in users %}
+                            <tr>
+                                <td>{{ user[0] }}</td>
+                                <td>{{ user[1] }}</td>
+                                <td>{{ user[2] }}</td>
+                                <td>
+                                    {% if user[3] == 1 %}
+                                        <span class="badge bg-danger">Admin</span>
+                                    {% else %}
+                                        <span class="badge bg-info">User</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ user[4] }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header bg-dark text-white">
+                <h5><i class="fas fa-history me-2"></i>{{ t('all_scans_history') }}</h5>
+            </div>
+            <div class="card-body">
+                {% if scans %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>ID</th>
+                                <th>URL</th>
+                                <th>{{ t('status_code') }}</th>
+                                <th>{{ t('date') }}</th>
+                                <th>{{ t('actions') }}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for scan in scans %}
+                            <tr>
+                                <td>{{ scan[0] }}</td>
+                                <td>{{ scan[1] }}</td>
+                                <td>
+                                    {% if scan[2] >= 200 and scan[2] < 300 %}
+                                        <span class="badge bg-success">{{ scan[2] }}</span>
+                                    {% elif scan[2] >= 400 %}
+                                        <span class="badge bg-warning">{{ scan[2] }}</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">{{ scan[2] }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ scan[4] }}</td>
+                                <td>
+                                    <a href="{{ url_for('download_report', scan_id=scan[0]) }}" class="btn btn-sm btn-outline-primary">
+                                        <i class="fas fa-file-pdf"></i> Report
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

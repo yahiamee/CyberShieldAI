@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+
+{% block title %}{{ t('dashboard') }} - CyberShield{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h2><i class="fas fa-tachometer-alt me-2"></i>{{ t('my_dashboard') }}</h2>
+        
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5><i class="fas fa-history me-2"></i>{{ t('scan_history') }}</h5>
+            </div>
+            <div class="card-body">
+                {% if results %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>ID</th>
+                                <th>URL</th>
+                                <th>{{ t('status_code') }}</th>
+                                <th>{{ t('date') }}</th>
+                                <th>{{ t('actions') }}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for result in results %}
+                            <tr>
+                                <td>{{ result[0] }}</td>
+                                <td>
+                                    <a href="{{ result[1] }}" target="_blank" rel="noopener noreferrer" class="text-decoration-none">
+                                        {{ result[1][:50] }}{% if result[1]|length > 50 %}...{% endif %}
+                                        <i class="fas fa-external-link-alt ms-1 small"></i>
+                                    </a>
+                                </td>
+                                <td>
+                                    {% if result[2] and result[2] >= 200 and result[2] < 300 %}
+                                        <span class="badge bg-success">{{ result[2] }}</span>
+                                    {% elif result[2] and result[2] >= 400 and result[2] < 500 %}
+                                        <span class="badge bg-warning">{{ result[2] }}</span>
+                                    {% elif result[2] and result[2] >= 500 %}
+                                        <span class="badge bg-danger">{{ result[2] }}</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">{{ result[2] if result[2] else 'N/A' }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ result[4] if result|length > 4 else 'N/A' }}</td>
+                                <td>
+                                    <a href="{{ url_for('download_report', scan_id=result[0]) }}" 
+                                       class="btn btn-sm btn-outline-primary"
+                                       onclick="showDownloadLoading(this)">
+                                        <i class="fas fa-file-pdf"></i> {{ t('download_report') }}
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-5">
+                    <i class="fas fa-search fa-3x text-muted mb-3"></i>
+                    <p class="lead">{{ t('no_scans') }}</p>
+                    <a href="{{ url_for('scan') }}" class="btn btn-primary">
+                        <i class="fas fa-plus-circle me-2"></i>{{ t('start_first_scan') }}
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function showDownloadLoading(btn) {
+    const originalHTML = btn.innerHTML;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating...';
+    btn.classList.add('disabled');
+    setTimeout(function() {
+        btn.innerHTML = originalHTML;
+        btn.classList.remove('disabled');
+    }, 5000);
+}
+</script>
+{% endblock %}
+

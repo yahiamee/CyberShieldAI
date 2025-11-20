@@ -1,0 +1,262 @@
+{% extends "base.html" %}
+
+{% block title %}Home - CyberShield Professional Security Scanner{% endblock %}
+
+{% block content %}
+<div class="hero-section text-center">
+    <h1 class="hero-title">{{ t('hero_title') }}</h1>
+    <p class="hero-subtitle">{{ t('hero_subtitle') }}</p>
+    <p class="lead mb-4">{{ t('hero_description') }}</p>
+    {% if not current_user.is_authenticated %}
+    <a href="{{ url_for('register') }}" class="btn btn-hero me-2">
+        <i class="fas fa-rocket me-2"></i>{{ t('get_started') }}
+    </a>
+    <a href="{{ url_for('login') }}" class="btn btn-outline-light">
+        <i class="fas fa-sign-in-alt me-2"></i>{{ t('login') }}
+    </a>
+    {% else %}
+    <a href="{{ url_for('scan') }}" class="btn btn-hero">
+        <i class="fas fa-search me-2"></i>{{ t('start_scanning') }}
+    </a>
+    {% endif %}
+</div>
+
+<div class="row mt-5">
+    <div class="col-md-4">
+        <div class="card feature-card">
+            <div class="card-body text-center">
+                <div class="feature-icon">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <h5 class="feature-title">{{ t('feature_security') }}</h5>
+                <p>{{ t('feature_security_desc') }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card feature-card">
+            <div class="card-body text-center">
+                <div class="feature-icon">
+                    <i class="fas fa-brain"></i>
+                </div>
+                <h5 class="feature-title">{{ t('feature_ai') }}</h5>
+                <p>{{ t('feature_ai_desc') }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card feature-card">
+            <div class="card-body text-center">
+                <div class="feature-icon">
+                    <i class="fas fa-file-pdf"></i>
+                </div>
+                <h5 class="feature-title">{{ t('feature_reports') }}</h5>
+                <p>{{ t('feature_reports_desc') }}</p>
+            </div>
+    </div>
+</div>
+
+<div class="row mt-5">
+    <div class="col-12">
+        <div class="text-center mb-5">
+            <h2><i class="fas fa-shield-virus me-2 text-danger"></i>{{ t('vulnerabilities_scanned') }}</h2>
+            <p class="lead">{{ t('vulnerabilities_description') }}</p>
+        </div>
+        
+        <div class="row">
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 border-danger">
+                    <div class="card-body">
+                        <div class="text-center mb-3">
+                            <i class="fas fa-code fa-3x text-danger"></i>
+                        </div>
+                        <h5 class="card-title text-center">{{ t('xss') }}</h5>
+                        <p class="card-text text-center">{{ t('xss_desc') }}</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 border-danger">
+                    <div class="card-body">
+                        <div class="text-center mb-3">
+                            <i class="fas fa-database fa-3x text-danger"></i>
+                        </div>
+                        <h5 class="card-title text-center">{{ t('sqli') }}</h5>
+                        <p class="card-text text-center">{{ t('sqli_desc') }}</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 border-warning">
+                    <div class="card-body">
+                        <div class="text-center mb-3">
+                            <i class="fas fa-exchange-alt fa-3x text-warning"></i>
+                        </div>
+                        <h5 class="card-title text-center">{{ t('csrf') }}</h5>
+                        <p class="card-text text-center">{{ t('csrf_desc') }}</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 border-warning">
+                    <div class="card-body">
+                        <div class="text-center mb-3">
+                            <i class="fas fa-file-code fa-3x text-warning"></i>
+                        </div>
+                        <h5 class="card-title text-center">{{ t('xxe') }}</h5>
+                        <p class="card-text text-center">{{ t('xxe_desc') }}</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 border-warning">
+                    <div class="card-body">
+                        <div class="text-center mb-3">
+                            <i class="fas fa-server fa-3x text-warning"></i>
+                        </div>
+                        <h5 class="card-title text-center">{{ t('ssrf') }}</h5>
+                        <p class="card-text text-center">{{ t('ssrf_desc') }}</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 border-danger">
+                    <div class="card-body">
+                        <div class="text-center mb-3">
+                            <i class="fas fa-terminal fa-3x text-danger"></i>
+                        </div>
+                        <h5 class="card-title text-center">{{ t('rce') }}</h5>
+                        <p class="card-text text-center">{{ t('rce_desc') }}</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 border-info">
+                    <div class="card-body">
+                        <div class="text-center mb-3">
+                            <i class="fas fa-key fa-3x text-info"></i>
+                        </div>
+                        <h5 class="card-title text-center">{{ t('idor') }}</h5>
+                        <p class="card-text text-center">{{ t('idor_desc') }}</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 border-info">
+                    <div class="card-body">
+                        <div class="text-center mb-3">
+                            <i class="fas fa-cog fa-3x text-info"></i>
+                        </div>
+                        <h5 class="card-title text-center">{{ t('security_misconfig') }}</h5>
+                        <p class="card-text text-center">{{ t('security_misconfig_desc') }}</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 border-warning">
+                    <div class="card-body">
+                        <div class="text-center mb-3">
+                            <i class="fas fa-lock fa-3x text-warning"></i>
+                        </div>
+                        <h5 class="card-title text-center">{{ t('sensitive_data') }}</h5>
+                        <p class="card-text text-center">{{ t('sensitive_data_desc') }}</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 border-danger">
+                    <div class="card-body">
+                        <div class="text-center mb-3">
+                            <i class="fas fa-user-shield fa-3x text-danger"></i>
+                        </div>
+                        <h5 class="card-title text-center">{{ t('broken_auth') }}</h5>
+                        <p class="card-text text-center">{{ t('broken_auth_desc') }}</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 border-info">
+                    <div class="card-body">
+                        <div class="text-center mb-3">
+                            <i class="fas fa-file-archive fa-3x text-info"></i>
+                        </div>
+                        <h5 class="card-title text-center">{{ t('insecure_deserialization') }}</h5>
+                        <p class="card-text text-center">{{ t('insecure_deserialization_desc') }}</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 border-primary">
+                    <div class="card-body">
+                        <div class="text-center mb-3">
+                            <i class="fas fa-plug fa-3x text-primary"></i>
+                        </div>
+                        <h5 class="card-title text-center">{{ t('api_security') }}</h5>
+                        <p class="card-text text-center">{{ t('api_security_desc') }}</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 border-success">
+                    <div class="card-body">
+                        <div class="text-center mb-3">
+                            <i class="fas fa-shield-alt fa-3x text-success"></i>
+                        </div>
+                        <h5 class="card-title text-center">{{ t('security_headers') }}</h5>
+                        <p class="card-text text-center">{{ t('security_headers_desc') }}</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 border-success">
+                    <div class="card-body">
+                        <div class="text-center mb-3">
+                            <i class="fas fa-lock fa-3x text-success"></i>
+                        </div>
+                        <h5 class="card-title text-center">{{ t('ssl_tls') }}</h5>
+                        <p class="card-text text-center">{{ t('ssl_tls_desc') }}</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 border-warning">
+                    <div class="card-body">
+                        <div class="text-center mb-3">
+                            <i class="fas fa-mouse-pointer fa-3x text-warning"></i>
+                        </div>
+                        <h5 class="card-title text-center">{{ t('clickjacking') }}</h5>
+                        <p class="card-text text-center">{{ t('clickjacking_desc') }}</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 border-info">
+                    <div class="card-body">
+                        <div class="text-center mb-3">
+                            <i class="fas fa-info-circle fa-3x text-info"></i>
+                        </div>
+                        <h5 class="card-title text-center">{{ t('information_disclosure') }}</h5>
+                        <p class="card-text text-center">{{ t('information_disclosure_desc') }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

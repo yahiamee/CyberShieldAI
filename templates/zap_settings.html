@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+
+{% block title %}{{ t('zap_settings') }} - Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-10 mx-auto">
+        <h2><i class="fas fa-cog me-2 text-primary"></i>{{ t('zap_settings') }}</h2>
+        
+        <div class="card mb-4">
+            <div class="card-header {% if zap_status %}bg-success{% else %}bg-danger{% endif %} text-white">
+                <h5><i class="fas fa-shield-virus me-2"></i>{{ t('zap_status') }}</h5>
+            </div>
+            <div class="card-body">
+                <p><strong>{{ t('status') }}:</strong> 
+                    {% if zap_status %}
+                        <span class="badge bg-success">{{ t('running') }}</span>
+                    {% else %}
+                        <span class="badge bg-danger">{{ t('not_running') }}</span>
+                    {% endif %}
+                </p>
+                <p><strong>{{ t('proxy_url') }}:</strong> {{ settings.get('zap_proxy_url', 'http://127.0.0.1:8080') }}</p>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5><i class="fas fa-sliders-h me-2"></i>{{ t('configuration') }}</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="mb-4">
+                        <label for="zap_proxy_url" class="form-label">{{ t('zap_proxy_url') }}</label>
+                        <input type="text" class="form-control" id="zap_proxy_url" name="zap_proxy_url" 
+                               value="{{ settings.get('zap_proxy_url', 'http://127.0.0.1:8080') }}" required>
+                        <div class="form-text">{{ t('zap_proxy_url') }} (e.g., http://127.0.0.1:8080)</div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="zap_api_key" class="form-label">{{ t('zap_api_key') }}</label>
+                        <input type="text" class="form-control" id="zap_api_key" name="zap_api_key" 
+                               value="{{ settings.get('zap_api_key', '') }}" placeholder="{{ t('leave_empty_to_disable') }}">
+                        <div class="form-text">{{ t('leave_empty_to_disable') }}</div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="zap_enabled" name="zap_enabled" value="true"
+                                   {% if settings.get('zap_enabled', 'true') == 'true' %}checked{% endif %}>
+                            <label class="form-check-label" for="zap_enabled"><strong>{{ t('enable_zap_integration') }}</strong></label>
+                            <div class="form-text">{{ t('enable_zap_integration') }}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="zap_auto_start" name="zap_auto_start" value="true"
+                                   {% if settings.get('zap_auto_start', 'true') == 'true' %}checked{% endif %}>
+                            <label class="form-check-label" for="zap_auto_start"><strong>{{ t('auto_start_zap') }}</strong></label>
+                            <div class="form-text">{{ t('auto_start_zap') }}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="{{ url_for('admin_dashboard') }}" class="btn btn-secondary">{{ t('cancel') }}</a>
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="fas fa-save me-2"></i>{{ t('save') }}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <div class="card mt-5">
+            <div class="card-header bg-info text-white">
+                <h5><i class="fas fa-info-circle me-2"></i>{{ t('info') }}</h5>
+            </div>
+            <div class="card-body">
+                <p>{{ t('zap_info_text') }}</p>
+                <p><strong>{{ t('download_zap') }}:</strong> <a href="https://www.zaproxy.org/download/" target="_blank">https://www.zaproxy.org/download/</a></p>
+                <p>{{ t('zap_configure_note') }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

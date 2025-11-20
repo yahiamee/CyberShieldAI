@@ -1,0 +1,396 @@
+{% extends "base.html" %}
+
+{% block title %}{{ t('scan') }} {{ t('results') if t('results') else 'Results' }} - CyberShield{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-10 mx-auto">
+        <h2><i class="fas fa-search"></i> {{ t('professional_security_analysis') }}</h2>
+        
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5><i class="fas fa-chart-bar"></i> {{ t('scan_overview') }}</h5>
+            </div>
+            <div class="card-body">
+                <p><strong>{{ t('target_url') }}:</strong> {{ url }}</p>
+                <p><strong>{{ t('status_code') }}:</strong> 
+                    {% if status_code >= 200 and status_code < 300 %}
+                        <span class="badge bg-success">{{ status_code }} - Success</span>
+                    {% elif status_code >= 400 and status_code < 500 %}
+                        <span class="badge bg-warning">{{ status_code }} - Client Error</span>
+                    {% elif status_code >= 500 %}
+                        <span class="badge bg-danger">{{ status_code }} - Server Error</span>
+                    {% else %}
+                        <span class="badge bg-secondary">{{ status_code }}</span>
+                    {% endif %}
+                </p>
+                <p><strong>{{ t('scan_id') }}:</strong> {{ scan_id }}</p>
+            </div>
+        </div>
+        
+        {% if analysis %}
+        <div class="card mb-4">
+            <div class="card-header bg-success text-white">
+                <h5><i class="fas fa-tachometer-alt"></i> {{ t('performance_metrics') }}</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4 text-center">
+                        <h4>{{ analysis.response_time }}s</h4>
+                        <p>{{ t('response_time') }}</p>
+                    </div>
+                    <div class="col-md-4 text-center">
+                        <h4>{{ analysis.header_count }}</h4>
+                        <p>{{ t('headers_detected') }}</p>
+                    </div>
+                    <div class="col-md-4 text-center">
+                        <h4>{% if analysis.has_security_headers %}<span class="text-success">Yes</span>{% else %}<span class="text-danger">No</span>{% endif %}</h4>
+                        <p>{{ t('security_headers') }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        
+        {% if zap_results and zap_results.summary %}
+        <div class="card mb-4">
+            <div class="card-header bg-danger text-white">
+                <h5><i class="fas fa-shield-virus"></i> OWASP ZAP Security Scan Results</h5>
+            </div>
+            <div class="card-body">
+                <div class="row mb-4">
+                    <div class="col-md-3 text-center">
+                        <div class="bg-danger text-white p-3 rounded">
+                            <h3>{{ zap_results.summary.high_risk }}</h3>
+                            <p class="mb-0">High Risk</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3 text-center">
+                        <div class="bg-warning text-dark p-3 rounded">
+                            <h3>{{ zap_results.summary.medium_risk }}</h3>
+                            <p class="mb-0">Medium Risk</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3 text-center">
+                        <div class="bg-info text-white p-3 rounded">
+                            <h3>{{ zap_results.summary.low_risk }}</h3>
+                            <p class="mb-0">Low Risk</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3 text-center">
+                        <div class="bg-secondary text-white p-3 rounded">
+                            <h3>{{ zap_results.summary.total_alerts }}</h3>
+                            <p class="mb-0">Total Alerts</p>
+                        </div>
+                    </div>
+                </div>
+                
+                {% if zap_results.summary.alerts %}
+                <h6 class="mb-3">Security Alerts ({{ zap_results.summary.alerts|length }} total)</h6>
+                
+                <!-- High Risk Alerts -->
+                {% set high_count = 0 %}
+                {% for alert in zap_results.summary.alerts %}
+                    {% if alert.risk == 'High' %}
+                        {% set high_count = high_count + 1 %}
+                    {% endif %}
+                {% endfor %}
+                {% if high_count > 0 %}
+                <div class="alert alert-danger">
+                    <h6><i class="fas fa-exclamation-triangle me-2"></i>High Risk Vulnerabilities ({{ high_count }})</h6>
+                </div>
+                <div class="table-responsive mb-4">
+                    <table class="table table-striped table-hover">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>#</th>
+                                <th>Alert Name</th>
+                                <th>Risk</th>
+                                <th>Description</th>
+                                <th>Solution</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% set high_idx = 0 %}
+                            {% for alert in zap_results.summary.alerts %}
+                            {% if alert.risk == 'High' %}
+                            {% set high_idx = high_idx + 1 %}
+                            <tr>
+                                <td>{{ high_idx }}</td>
+                                <td><strong>{{ alert.name }}</strong></td>
+                                <td><span class="badge bg-danger">{{ alert.risk }}</span></td>
+                                <td><small>{{ alert.description }}</small></td>
+                                <td><small>{% if alert.solution %}{{ alert.solution[:100] }}{% if alert.solution|length > 100 %}...{% endif %}{% else %}N/A{% endif %}</small></td>
+                            </tr>
+                            {% endif %}
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% endif %}
+                
+                <!-- Medium Risk Alerts -->
+                {% set medium_count = 0 %}
+                {% for alert in zap_results.summary.alerts %}
+                    {% if alert.risk == 'Medium' %}
+                        {% set medium_count = medium_count + 1 %}
+                    {% endif %}
+                {% endfor %}
+                {% if medium_count > 0 %}
+                <div class="alert alert-warning">
+                    <h6><i class="fas fa-exclamation-circle me-2"></i>Medium Risk Issues ({{ medium_count }})</h6>
+                </div>
+                <div class="table-responsive mb-4">
+                    <table class="table table-striped table-hover">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>#</th>
+                                <th>Alert Name</th>
+                                <th>Risk</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% set medium_idx = 0 %}
+                            {% for alert in zap_results.summary.alerts %}
+                            {% if alert.risk == 'Medium' %}
+                            {% set medium_idx = medium_idx + 1 %}
+                            <tr>
+                                <td>{{ medium_idx }}</td>
+                                <td><strong>{{ alert.name }}</strong></td>
+                                <td><span class="badge bg-warning text-dark">{{ alert.risk }}</span></td>
+                                <td><small>{{ alert.description[:200] }}{% if alert.description|length > 200 %}...{% endif %}</small></td>
+                            </tr>
+                            {% endif %}
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% endif %}
+                
+                <!-- Low Risk Alerts -->
+                {% set low_count = 0 %}
+                {% for alert in zap_results.summary.alerts %}
+                    {% if alert.risk == 'Low' %}
+                        {% set low_count = low_count + 1 %}
+                    {% endif %}
+                {% endfor %}
+                {% if low_count > 0 %}
+                <div class="alert alert-info">
+                    <h6><i class="fas fa-info-circle me-2"></i>Low Risk Findings ({{ low_count }})</h6>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-striped table-sm">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>#</th>
+                                <th>Alert Name</th>
+                                <th>Risk</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% set low_idx = 0 %}
+                            {% for alert in zap_results.summary.alerts %}
+                            {% if alert.risk == 'Low' %}
+                            {% set low_idx = low_idx + 1 %}
+                            <tr>
+                                <td>{{ low_idx }}</td>
+                                <td><strong>{{ alert.name }}</strong></td>
+                                <td><span class="badge bg-info">{{ alert.risk }}</span></td>
+                                <td><small>{{ alert.description[:150] }}{% if alert.description|length > 150 %}...{% endif %}</small></td>
+                            </tr>
+                            {% endif %}
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% endif %}
+                
+                <!-- Informational Alerts -->
+                {% set info_count = 0 %}
+                {% set info_shown = 0 %}
+                {% for alert in zap_results.summary.alerts %}
+                    {% if alert.risk != 'High' and alert.risk != 'Medium' and alert.risk != 'Low' %}
+                        {% set info_count = info_count + 1 %}
+                    {% endif %}
+                {% endfor %}
+                {% if info_count > 0 %}
+                <div class="alert alert-secondary mt-3">
+                    <h6><i class="fas fa-info me-2"></i>Informational Findings ({{ info_count }})</h6>
+                    <ul class="mb-0">
+                        {% for alert in zap_results.summary.alerts %}
+                        {% if alert.risk != 'High' and alert.risk != 'Medium' and alert.risk != 'Low' %}
+                        {% if info_shown < 20 %}
+                        {% set info_shown = info_shown + 1 %}
+                        <li><strong>{{ alert.name }}:</strong> {{ alert.description[:100] }}{% if alert.description|length > 100 %}...{% endif %}</li>
+                        {% endif %}
+                        {% endif %}
+                        {% endfor %}
+                        {% if info_count > 20 %}
+                        <li><em>... and {{ info_count - 20 }} more informational findings</em></li>
+                        {% endif %}
+                    </ul>
+                </div>
+                {% endif %}
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+        
+        {% if headers %}
+        <div class="card mb-4">
+            <div class="card-header bg-info text-white">
+                <h5><i class="fas fa-list-alt me-2"></i>HTTP Response Headers</h5>
+            </div>
+            <div class="card-body">
+                <p class="text-muted">All HTTP headers returned by the server. Security headers are highlighted.</p>
+                <div class="table-responsive">
+                    <table class="table table-striped table-sm">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Header Name</th>
+                                <th>Value</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for header_name, header_value in headers.items() %}
+                            <tr>
+                                <td>
+                                    {% if header_name.lower() in ['content-security-policy', 'x-frame-options', 'x-content-type-options', 'strict-transport-security', 'x-xss-protection', 'referrer-policy', 'permissions-policy'] %}
+                                        <strong class="text-success">{{ header_name }}</strong>
+                                        <span class="badge bg-success ms-2">Security</span>
+                                    {% elif header_name.lower() in ['server', 'x-powered-by'] %}
+                                        <strong class="text-warning">{{ header_name }}</strong>
+                                        <span class="badge bg-warning ms-2">Info Disclosure</span>
+                                    {% else %}
+                                        {{ header_name }}
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <code class="small">{{ header_value }}</code>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        
+        {% if ai_analysis and ai_analysis.success %}
+        <div class="card mb-4 border-success">
+            <div class="card-header bg-success text-white">
+                <h5><i class="fas fa-brain me-2"></i>AI-Powered Security Analysis (OpenAI)</h5>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    <strong>AI Analysis Generated:</strong> This analysis was generated using OpenAI {{ ai_analysis.model_used }} model.
+                </div>
+                
+                {% if ai_analysis.structured_report %}
+                <div class="ai-analysis-content">
+                    {% if ai_analysis.structured_report.executive_summary %}
+                    <div class="mb-4">
+                        <h6 class="text-primary"><i class="fas fa-file-alt me-2"></i>Executive Summary</h6>
+                        <div class="p-3 bg-light rounded">
+                            <pre style="white-space: pre-wrap; font-family: inherit;">{{ ai_analysis.structured_report.executive_summary }}</pre>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    {% if ai_analysis.structured_report.critical_findings %}
+                    <div class="mb-4">
+                        <h6 class="text-danger"><i class="fas fa-exclamation-triangle me-2"></i>Critical Findings</h6>
+                        <div class="p-3 bg-light rounded">
+                            <pre style="white-space: pre-wrap; font-family: inherit;">{{ ai_analysis.structured_report.critical_findings }}</pre>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    {% if ai_analysis.structured_report.security_headers_analysis %}
+                    <div class="mb-4">
+                        <h6 class="text-info"><i class="fas fa-shield-alt me-2"></i>Security Headers Analysis</h6>
+                        <div class="p-3 bg-light rounded">
+                            <pre style="white-space: pre-wrap; font-family: inherit;">{{ ai_analysis.structured_report.security_headers_analysis }}</pre>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    {% if ai_analysis.structured_report.vulnerability_assessment %}
+                    <div class="mb-4">
+                        <h6 class="text-warning"><i class="fas fa-bug me-2"></i>Vulnerability Assessment</h6>
+                        <div class="p-3 bg-light rounded">
+                            <pre style="white-space: pre-wrap; font-family: inherit;">{{ ai_analysis.structured_report.vulnerability_assessment }}</pre>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    {% if ai_analysis.structured_report.risk_assessment %}
+                    <div class="mb-4">
+                        <h6 class="text-dark"><i class="fas fa-chart-line me-2"></i>Risk Assessment</h6>
+                        <div class="p-3 bg-light rounded">
+                            <pre style="white-space: pre-wrap; font-family: inherit;">{{ ai_analysis.structured_report.risk_assessment }}</pre>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    {% if ai_analysis.structured_report.recommendations %}
+                    <div class="mb-4">
+                        <h6 class="text-success"><i class="fas fa-lightbulb me-2"></i>Recommendations</h6>
+                        <div class="p-3 bg-light rounded">
+                            <pre style="white-space: pre-wrap; font-family: inherit;">{{ ai_analysis.structured_report.recommendations }}</pre>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    {% if ai_analysis.structured_report.best_practices %}
+                    <div class="mb-4">
+                        <h6 class="text-primary"><i class="fas fa-star me-2"></i>Best Practices</h6>
+                        <div class="p-3 bg-light rounded">
+                            <pre style="white-space: pre-wrap; font-family: inherit;">{{ ai_analysis.structured_report.best_practices }}</pre>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+                {% else %}
+                <div class="p-3 bg-light rounded">
+                    <pre style="white-space: pre-wrap; font-family: inherit;">{{ ai_analysis.ai_analysis }}</pre>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% elif ai_analysis and ai_analysis.error %}
+        <div class="alert alert-warning">
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            <strong>AI Analysis Error:</strong> {{ ai_analysis.error }}
+        </div>
+        {% endif %}
+        
+        <div class="mt-3">
+            <a href="{{ url_for('scan') }}" class="btn btn-primary"><i class="fas fa-search"></i> {{ t('scan_another') }}</a>
+            <a href="{{ url_for('dashboard') }}" class="btn btn-secondary"><i class="fas fa-tachometer-alt"></i> {{ t('view_dashboard') }}</a>
+            <a href="{{ url_for('download_report', scan_id=scan_id) }}" class="btn btn-success" onclick="showDownloadLoading()">
+                <i class="fas fa-file-pdf"></i> {{ t('download_report') }}
+            </a>
+        </div>
+    </div>
+</div>
+
+<script>
+function showDownloadLoading() {
+    const btn = event.target.closest('a');
+    if (btn) {
+        const originalHTML = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Generating Report...';
+        btn.classList.add('disabled');
+        setTimeout(function() {
+            btn.innerHTML = originalHTML;
+            btn.classList.remove('disabled');
+        }, 5000);
+    }
+}
+</script>
+{% endblock %}

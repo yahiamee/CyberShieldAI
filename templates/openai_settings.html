@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+
+{% block title %}{{ t('openai_settings') }} - CyberShield{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 mx-auto">
+        <div class="text-center mb-5">
+            <h2><i class="fas fa-brain me-2 text-success"></i>{{ t('openai_settings') }}</h2>
+            <p class="lead">{{ t('when_enabled_description') }}</p>
+        </div>
+
+        {% if openai_status %}
+        <div class="alert alert-success mb-4">
+            <i class="fas fa-check-circle me-2"></i>OpenAI <strong>{{ t('connected') }}</strong> {{ t('ready_to_use') }}
+        </div>
+        {% else %}
+        <div class="alert alert-warning mb-4">
+            <i class="fas fa-exclamation-triangle me-2"></i>OpenAI <strong>{{ t('not_connected') }}</strong>. {{ t('configure_api_key') }}
+        </div>
+        {% endif %}
+        
+        <div class="card scan-form">
+            <form method="POST">
+                <div class="mb-3">
+                    <label for="openai_api_key" class="form-label">{{ t('openai_api_key') }}</label>
+                    <input type="password" class="form-control" id="openai_api_key" name="openai_api_key" 
+                           value="{{ settings.get('openai_api_key', '') }}" 
+                           placeholder="sk-...">
+                    <div class="form-text">
+                        <i class="fas fa-key me-1"></i>
+                        {{ t('get_key_from') }} <a href="https://platform.openai.com/api-keys" target="_blank">OpenAI Platform</a>
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="openai_model" class="form-label">{{ t('openai_model') }}</label>
+                    <select class="form-select" id="openai_model" name="openai_model">
+                        <option value="gpt-4" {% if settings.get('openai_model', 'gpt-4') == 'gpt-4' %}selected{% endif %}>{{ t('gpt4_recommended') }}</option>
+                        <option value="gpt-4-turbo-preview" {% if settings.get('openai_model', 'gpt-4') == 'gpt-4-turbo-preview' %}selected{% endif %}>{{ t('gpt4_turbo') }}</option>
+                        <option value="gpt-3.5-turbo" {% if settings.get('openai_model', 'gpt-4') == 'gpt-3.5-turbo' %}selected{% endif %}>{{ t('gpt35_turbo') }}</option>
+                        <option value="gpt-3.5-turbo-16k" {% if settings.get('openai_model', 'gpt-4') == 'gpt-3.5-turbo-16k' %}selected{% endif %}>{{ t('gpt35_turbo_16k') }}</option>
+                    </select>
+                    <div class="form-text">{{ t('select_model_description') }}</div>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="openai_temperature" class="form-label">{{ t('temperature') }} (0.0 - 2.0)</label>
+                    <input type="number" class="form-control" id="openai_temperature" name="openai_temperature" 
+                           value="{{ settings.get('openai_temperature', '0.7') }}" 
+                           min="0" max="2" step="0.1">
+                    <div class="form-text">
+                        {{ t('temperature_description') }}
+                    </div>
+                </div>
+                
+                <div class="form-check form-switch mb-4">
+                    <input class="form-check-input" type="checkbox" id="openai_enabled" name="openai_enabled" value="true"
+                           {% if settings.get('openai_enabled', 'false') == 'true' %}checked{% endif %}>
+                    <label class="form-check-label" for="openai_enabled">{{ t('enable_openai_analysis') }}</label>
+                    <div class="form-text">{{ t('when_enabled_description') }}</div>
+                </div>
+                
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-success btn-lg">
+                        <i class="fas fa-save me-2"></i>{{ t('save') }}
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <div class="card mt-5">
+            <div class="card-header bg-info text-white">
+                <h5><i class="fas fa-info-circle me-2"></i>{{ t('about_openai_integration') }}</h5>
+            </div>
+            <div class="card-body">
+                <h6>{{ t('what_does_openai_do') }}</h6>
+                <p>{{ t('when_enabled_generates') }}</p>
+                <ul>
+                    <li><strong>{{ t('executive_summary') }}:</strong> {{ t('executive_summary_desc') }}</li>
+                    <li><strong>{{ t('critical_findings') }}:</strong> {{ t('critical_findings_desc') }}</li>
+                    <li><strong>{{ t('security_headers_analysis') }}:</strong> {{ t('security_headers_analysis_desc') }}</li>
+                    <li><strong>{{ t('vulnerability_assessment') }}:</strong> {{ t('vulnerability_assessment_desc') }}</li>
+                    <li><strong>{{ t('risk_assessment') }}:</strong> {{ t('risk_assessment_desc') }}</li>
+                    <li><strong>{{ t('prioritized_recommendations') }}:</strong> {{ t('prioritized_recommendations_desc') }}</li>
+                    <li><strong>{{ t('best_practices') }}:</strong> {{ t('best_practices_desc') }}</li>
+                </ul>
+                
+                <h6 class="mt-4">{{ t('getting_api_key') }}</h6>
+                <ol>
+                    <li>{{ t('visit_openai_platform') }}: <a href="https://platform.openai.com/signup" target="_blank">OpenAI Platform</a></li>
+                    <li>{{ t('go_to_api_keys') }}: <a href="https://platform.openai.com/api-keys" target="_blank">API Keys</a></li>
+                    <li>{{ t('create_new_key') }}</li>
+                    <li>{{ t('copy_paste_key') }}</li>
+                </ol>
+                
+                <div class="alert alert-warning mt-3">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <strong>{{ t('warning') }}:</strong> {{ t('openai_usage_note') }} 
+                    <a href="https://platform.openai.com/usage" target="_blank">OpenAI Usage Dashboard</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+
+{% block title %}{{ t('scan') }} - CyberShield Professional Security Scanner{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 mx-auto">
+        <div class="text-center mb-5">
+            <h2><i class="fas fa-search me-2 text-primary"></i>{{ t('website_security_scanner') }}</h2>
+            <p class="lead">{{ t('enter_url') }}</p>
+        </div>
+        
+        {% if error %}
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-triangle me-2"></i>{{ error }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        {% endif %}
+        
+        <div class="scan-form">
+            <form method="POST" id="scanForm" onsubmit="showLoading()">
+                <div class="mb-4">
+                    <label for="url" class="form-label">{{ t('website_url') }}</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-link"></i></span>
+                        <input type="url" class="form-control form-control-lg" id="url" name="url" 
+                               placeholder="https://example.com" required 
+                               pattern="https?://.+" 
+                               maxlength="2048"
+                               oninput="validateURL(this)">
+                    </div>
+                    <div class="form-text">Please include http:// or https:// in the URL. Example: https://www.example.com</div>
+                    <div class="invalid-feedback" id="urlFeedback"></div>
+                </div>
+                
+                <div class="mb-4">
+                    <label for="scan_type" class="form-label">{{ t('scan_type') }}</label>
+                    <select class="form-select form-select-lg" id="scan_type" name="scan_type">
+                        <option value="basic" selected>{{ t('basic_scan') }}</option>
+                        <option value="advanced">{{ t('advanced_scan') }}</option>
+                    </select>
+                    <div class="form-text">
+                        <i class="fas fa-info-circle me-1"></i>
+                        <strong>Basic:</strong> {{ t('basic_desc') }}
+                        <br>
+                        <i class="fas fa-shield-alt me-1"></i>
+                        <strong>Advanced:</strong> {{ t('advanced_desc') }}
+                    </div>
+                </div>
+                
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-primary btn-lg" id="scanButton">
+                        <i class="fas fa-search me-2"></i>{{ t('scan_website') }}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="loading-overlay" id="loadingOverlay">
+    <div class="text-center text-white">
+        <div class="spinner-border mb-3" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+        <p>Scanning website... Please wait.</p>
+    </div>
+</div>
+
+<script>
+function validateURL(input) {
+    const url = input.value.trim();
+    const feedback = document.getElementById('urlFeedback');
+    
+    if (url && !url.match(/^https?:\/\/.+/)) {
+        input.classList.add('is-invalid');
+        feedback.textContent = 'URL must start with http:// or https://';
+        return false;
+    } else {
+        input.classList.remove('is-invalid');
+        feedback.textContent = '';
+        return true;
+    }
+}
+
+function showLoading() {
+    const overlay = document.getElementById('loadingOverlay');
+    const button = document.getElementById('scanButton');
+    if (overlay && button) {
+        overlay.classList.add('show');
+        button.disabled = true;
+    }
+}
+
+// Validate on form submit
+document.getElementById('scanForm')?.addEventListener('submit', function(e) {
+    const urlInput = document.getElementById('url');
+    if (!validateURL(urlInput)) {
+        e.preventDefault();
+        return false;
+    }
+});
+</script>
+{% endblock %}
