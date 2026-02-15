@@ -63,6 +63,7 @@ translations.py           # نظام الترجمة وتبديل اللغة
 - لحماية أفضل، استخدم متغيرات بيئة لـ `SECRET_KEY` وبيانات الاتصال بـ OpenAI/ZAP.
 
 ## 📝 تطوير 
+-Eng. Yahia Hayder
 - Mohammed Alomar 
 - Talal Alomar
 - Mohammed qahhat
