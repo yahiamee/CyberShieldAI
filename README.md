@@ -1,73 +1,99 @@
 # CyberShieldAI
 
-## 📌 نبذة عن المشروع
-CyberShieldAI منصة ويب مبنية على Flask لاختبار أمان التطبيقات والمواقع. تجمع بين فحوص HTTP السريعة، وتكامل OWASP ZAP للفحوص المتقدمة، وتحليل اختياري مدعوم بـ OpenAI لإنتاج توصيات فورية وتقارير PDF قابلة للتنزيل، مع واجهة ثنائية اللغة وميزات إدارة للمشرفين.
+CyberShieldAI is a Flask-based web platform for practical web-application security assessment. It combines lightweight HTTP security checks, optional OWASP ZAP integration, AI-assisted analysis, PDF reporting, bilingual UI support, and administrative controls.
 
-![](screenshot/Untitled2.jpg)
+![CyberShieldAI Screenshot](screenshot/Untitled2.jpg)
 
-## ✨ أبرز الميزات
-- تسجيل مستخدمين مع صلاحيات مخصصة ولوحة تحكم لكل مستخدم.
-- فحص أساسي يعتمد `requests` لرصد رؤوس الأمان وزمن الاستجابة.
-- تكامل OWASP ZAP للفحص المتقدم وتشغيله آلياً من لوحة المشرف.
-- تحليل ذكاء اصطناعي اختياري عبر OpenAI لملخص النتائج.
-- توليد تقارير PDF (`reports/`) مع إمكانية تنزيلها لكل فحص.
-- دعم لغتين (العربية/الإنجليزية) وتبديل فوري للواجهة.
-- واجهة إدارة شاملة لإعدادات ZAP و OpenAI ومراقبة المستخدمين والفحوص.
+## Highlights
 
-## 🧰 المتطلبات
-تحتاج بيئة Python 3.10+ وتتوفر الاعتماديات عبر `requirements.txt`:
+- User authentication and role-aware dashboards
+- Fast HTTP checks for security headers and response behavior
+- OWASP ZAP integration for deeper security scanning
+- Optional OpenAI-assisted analysis of scan results
+- Downloadable PDF security reports
+- Arabic / English interface support
+- Admin controls for users, scans, ZAP, and OpenAI settings
+- SQLite-backed local persistence
 
-```
-Flask, Flask-Login, requests, reportlab, fpdf,
-scikit-learn, pandas, numpy, python-owasp-zap-v2.4, openai
-```
+## Tech Stack
 
-## ⚙️ خطوات التثبيت
+- Python
+- Flask
+- Flask-Login
+- SQLite
+- OWASP ZAP
+- OpenAI API
+- ReportLab / FPDF
+- scikit-learn
+- pandas
+- NumPy
+
+## Installation
+
 ```bash
-git clone <repo-url> CyberShieldAI
+git clone https://github.com/yahiamee/CyberShieldAI.git
 cd CyberShieldAI
+
 python -m venv .venv
-.venv\Scripts\activate        # على ويندوز
-pip install -r requirements.txt
-set SECRET_KEY=<قيمة_آمنة>   # اختياري لكنه مستحسن للإنتاج
 ```
 
-## 🚀 التشغيل
+### Windows
+
 ```bash
+.venv\Scripts\activate
+pip install -r requirements.txt
+set SECRET_KEY=replace-with-a-secure-value
 python app.py
 ```
-- التطبيق يعمل افتراضياً على `http://0.0.0.0:5000`.
-- تأكد من تشغيل ZAP إذا رغبت في الفحص المتقدم أو فعّل خيار التشغيل التلقائي من لوحة المشرف.
-- أدخل مفتاح OpenAI من `لوحة المشرف > إعدادات OpenAI` لتفعيل التحليل الذكي.
 
-## 🧱 بنية المجلدات
-```
-app.py                    # نقطة الدخول للتطبيق
-database.py               # تهيئة وإدارة SQLite
-models/report_generator.py# توليد تقارير PDF
-templates/                # قوالب HTML لكل الواجهات
-static/style.css          # التنسيق الأساسي
-reports/                  # تقارير الفحوص المولدة
-zap_manager.py            # ضبط وتشغيل ZAP
-openai_analyzer.py        # موصل OpenAI والتحليلات
-translations.py           # نظام الترجمة وتبديل اللغة
+### Linux / macOS
+
+```bash
+source .venv/bin/activate
+pip install -r requirements.txt
+export SECRET_KEY=replace-with-a-secure-value
+python app.py
 ```
 
-## 🌐 اللغات والدعم
-- تبديل فوري بين العربية والإنجليزية عبر الرابط `/set_language/<lang>`.
-- يتم حفظ التفضيل في الجلسة ليظهر في كل الصفحات.
+By default, the application runs on:
 
-## 📝 ملاحظات التشغيل
-- يُخزّن التطبيق النتائج والمستخدمين في قاعدة SQLite (`cybershield.db`) داخل المشروع.
-- تأكد من إنشاء مجلد `reports` أو اترك التطبيق ينشئه تلقائياً عند الإقلاع.
-- لحماية أفضل، استخدم متغيرات بيئة لـ `SECRET_KEY` وبيانات الاتصال بـ OpenAI/ZAP.
+```text
+http://0.0.0.0:5000
+```
 
-## 📝 تطوير 
--Eng. Yahia Hayder
-- Mohammed Alomar 
+## Project Structure
+
+```text
+app.py                     Application entry point
+database.py                SQLite initialization and persistence
+models/report_generator.py PDF report generation
+templates/                 HTML templates
+static/style.css           Main styling
+reports/                   Generated scan reports
+zap_manager.py             OWASP ZAP integration
+openai_analyzer.py         OpenAI-assisted analysis
+translations.py            Arabic / English localization
+```
+
+## Security Notes
+
+For production deployments:
+
+- Keep `SECRET_KEY` outside source control.
+- Store API credentials in environment variables.
+- Restrict OWASP ZAP access to trusted environments.
+- Place the application behind a production web server and TLS.
+- Review generated security findings before acting on automated recommendations.
+
+## Contributors
+
+- Eng. Yahia Hayder
+- Mohammed Alomar
 - Talal Alomar
-- Mohammed qahhat
+- Mohammed Qahhat
 - Sayyad Alhareth
 - Mohammed Ali
 
+## Disclaimer
 
+Use security scanning tools only against systems you own or have explicit authorization to test.
