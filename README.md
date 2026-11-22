@@ -42,7 +42,7 @@ python -m venv .venv
 ```bash
 .venv\Scripts\activate
 pip install -r requirements.txt
-set SECRET_KEY=replace-with-a-secure-value
+set SECRET_KEY=replace-with-a-random-value-of-at-least-32-characters
 python app.py
 ```
 
@@ -51,14 +51,14 @@ python app.py
 ```bash
 source .venv/bin/activate
 pip install -r requirements.txt
-export SECRET_KEY=replace-with-a-secure-value
+export SECRET_KEY=replace-with-a-random-value-of-at-least-32-characters
 python app.py
 ```
 
 By default, the application runs on:
 
 ```text
-http://0.0.0.0:5000
+http://127.0.0.1:5000
 ```
 
 ## Project Structure
@@ -97,3 +97,22 @@ For production deployments:
 ## Disclaimer
 
 Use security scanning tools only against systems you own or have explicit authorization to test.
+
+
+## First-run configuration
+
+Generate a session key with `python -c "import secrets; print(secrets.token_hex(32))"` and export it as `SECRET_KEY`. Startup rejects a missing or short key. `.env.example` documents the variables. The application reads shell environment variables and does not load `.env` automatically.
+
+For a new database, set `CYBERSHIELD_ADMIN_USERNAME`, `CYBERSHIELD_ADMIN_EMAIL` and `CYBERSHIELD_ADMIN_PASSWORD` before the first start. Use a unique random password of at least 12 characters. Remove the bootstrap password from the environment after account creation. Existing users are preserved. There is no bundled account or default password. Change the old default administrator password in existing deployments through the application's account management.
+
+The development server listens on loopback with debugging disabled. Use a production WSGI server and TLS for deployed environments. `HOST`, `PORT` and `FLASK_DEBUG` are explicit development overrides.
+
+HTTP scans verify TLS certificates and report verification failures. HTTPS passive scans through ZAP require its trusted root CA exported as PEM and supplied through `ZAP_CA_BUNDLE`. Certificate errors are not retried with verification disabled.
+
+Runtime databases, generated reports and Python caches are excluded from new commits. They remain in previous Git commits. Review previously published data and revoke any exposed service keys as appropriate. Use synthetic data for public examples.
+
+## Local regression checks
+
+Run `python -m unittest discover -s tests -v`. These checks cover administrator bootstrapping and existing account preservation without calling external services. Live ZAP and OpenAI integrations require separately configured services.
+
+HTTPX is pinned to 0.27.2 to preserve compatibility with the existing OpenAI 1.3.0 client constructor. The local regression suite checks client initialization without making API requests.

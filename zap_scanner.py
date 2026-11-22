@@ -3,6 +3,7 @@ OWASP ZAP Scanner Integration for CyberShield AI
 This module provides advanced security scanning using OWASP ZAP
 """
 
+import os
 import json
 import time
 import requests
@@ -273,7 +274,10 @@ class ZAPScanner:
                 'https': self.zap_proxy_url
             }
             
-            response = requests.get(target_url, proxies=proxies, timeout=30, verify=False)
+            response = requests.get(
+                target_url, proxies=proxies, timeout=30,
+                verify=os.environ.get('ZAP_CA_BUNDLE') or True
+            )
             
             # Wait a bit for passive scanning to process
             time.sleep(5)
@@ -313,6 +317,3 @@ def create_zap_scanner(zap_proxy_url: str = "http://127.0.0.1:8080", zap_api_key
         return scanner if scanner.is_available else None
     except:
         return None
-
-
-

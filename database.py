@@ -1,3 +1,4 @@
+import os
 import sqlite3
 import json
 from datetime import datetime
@@ -70,14 +71,20 @@ def init_db():
                 VALUES (?, ?)
             ''', (key, value))
     
-    # Create default admin user if not exists
-    cursor.execute('SELECT * FROM users WHERE username = ?', ('admin',))
-    if not cursor.fetchone():
-        admin_password = generate_password_hash('admin123')
+    # Bootstrap an administrator only when explicitly configured.
+    # Existing accounts and password hashes are preserved.
+    admin_username = os.getenv('CYBERSHIELD_ADMIN_USERNAME', 'admin')
+    admin_password = os.getenv('CYBERSHIELD_ADMIN_PASSWORD')
+    cursor.execute('SELECT id FROM users WHERE username = ?', (admin_username,))
+    if not cursor.fetchone() and admin_password:
+        if len(admin_password) < 12:
+            conn.close()
+            raise ValueError('CYBERSHIELD_ADMIN_PASSWORD must contain at least 12 characters.')
         cursor.execute('''
             INSERT INTO users (username, email, password_hash, is_admin)
             VALUES (?, ?, ?, ?)
-        ''', ('admin', 'admin@cybershield.ai', admin_password, 1))
+        ''', (admin_username, os.getenv('CYBERSHIELD_ADMIN_EMAIL', 'admin@localhost'),
+              generate_password_hash(admin_password), 1))
     
     conn.commit()
     conn.close()

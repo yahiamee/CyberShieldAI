@@ -22,7 +22,9 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
-app.secret_key = os.getenv('SECRET_KEY', 'cybershield-secret-key-change-in-production-please-use-env-variable')
+app.secret_key = os.environ.get('SECRET_KEY')
+if not app.secret_key or len(app.secret_key) < 32:
+    raise RuntimeError('Set SECRET_KEY to a random value of at least 32 characters before starting CyberShieldAI.')
 
 # Initialize Flask-Login
 login_manager = LoginManager()
@@ -299,33 +301,17 @@ def scan():
             start_time = time.time()
             
             # Perform basic HTTP scan with enhanced error handling
-            try:
-                response = requests.get(
-                    url, 
-                    timeout=15,  # Increased timeout
-                    headers={
-                        'User-Agent': 'CyberShield-Security-Scanner/1.0',
-                        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
-                    },
-                    allow_redirects=True,
-                    verify=True  # SSL verification
-                )
-            except requests.exceptions.SSLError:
-                # Try without SSL verification if SSL error occurs
-                try:
-                    response = requests.get(
-                        url, 
-                        timeout=15,
-                        headers={
-                            'User-Agent': 'CyberShield-Security-Scanner/1.0',
-                            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
-                        },
-                        allow_redirects=True,
-                        verify=False
-                    )
-                except Exception as e:
-                    raise requests.exceptions.RequestException(f"SSL Error: {str(e)}")
-            
+            response = requests.get(
+                url,
+                timeout=15,
+                headers={
+                    'User-Agent': 'CyberShield-Security-Scanner/1.0',
+                    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
+                },
+                allow_redirects=True,
+                verify=True
+            )
+
             # Calculate response time
             response_time = time.time() - start_time
             
@@ -451,7 +437,9 @@ def scan():
         except requests.exceptions.RequestException as e:
             error_msg = str(e)
             # Clean up error message for better user experience
-            if "NameResolutionError" in error_msg:
+            if isinstance(e, requests.exceptions.SSLError):
+                error_msg = "TLS certificate verification failed. Configure a trusted certificate authority and retry."
+            elif "NameResolutionError" in error_msg:
                 error_msg = "Could not resolve the domain name. Please check if the URL is correct and the website is accessible."
             elif "Max retries exceeded" in error_msg:
                 error_msg = "Connection failed. The website might be down or blocking our requests."
@@ -781,4 +769,8 @@ if __name__ == '__main__':
     os.makedirs('reports', exist_ok=True)
     
     # Run app
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    app.run(
+        debug=os.getenv('FLASK_DEBUG', '0') == '1',
+        host=os.getenv('HOST', '127.0.0.1'),
+        port=int(os.getenv('PORT', '5000'))
+    )
